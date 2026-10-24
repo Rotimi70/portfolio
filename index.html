@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LuxeFolio — Premium Portfolio Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Playfair Display', 'serif'],
+          },
+          colors: {
+            luxury: {
+              50: '#f8f7f4',
+              100: '#f0ede6',
+              200: '#e0d9cc',
+              300: '#c9bba3',
+              400: '#b09a7a',
+              500: '#9a8160',
+              600: '#8a6f52',
+              700: '#735a45',
+              800: '#5f4b3c',
+              900: '#4f3f34',
+              950: '#2a211a',
+            },
+            gold: {
+              400: '#d4af37',
+              500: '#c9a227',
+              600: '#b8860b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .font-display {
+      font-family: 'Playfair Display', serif;
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .dark .glass {
+      background: rgba(15, 23, 42, 0.75);
+    }
+    .preview-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    .preview-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .preview-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    .dark .preview-scroll::-webkit-scrollbar-thumb {
+      background: #475569;
+    }
+    .skill-tag {
+      transition: all 0.2s ease;
+    }
+    .skill-tag:hover {
+      transform: translateY(-1px);
+    }
+    .project-card {
+      transition: all 0.25s ease;
+    }
+    .project-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+    .fade-in {
+      animation: fadeIn 0.4s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+      color: #1a1a1a;
+    }
+    .btn-gold:hover {
+      background: linear-gradient(135deg, #c9a227 0%, #a67c00 100%);
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    }
+    .theme-indigo { --accent: #6366f1; --accent-hover: #4f46e5; }
+    .theme-violet { --accent: #8b5cf6; --accent-hover: #7c3aed; }
+    .theme-emerald { --accent: #10b981; --accent-hover: #059669; }
+    .theme-rose { --accent: #f43f5e; --accent-hover: #e11d48; }
+    .theme-amber { --accent: #f59e0b; --accent-hover: #d97706; }
+    .theme-gold { --accent: #d4af37; --accent-hover: #b8860b; }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300">
+
+  <!-- Top Navigation -->
+  <nav class="sticky top-0 z-50 glass border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+            <i class="fas fa-gem text-white text-sm"></i>
+          </div>
+          <div>
+            <h1 class="font-display text-xl font-semibold tracking-tight">LuxeFolio</h1>
+            <p class="text-[10px] uppercase tracking-widest text-slate-500 dark:text-slate-400 -mt-0.5">Premium Portfolio Generator</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 sm:gap-3">
+          <button onclick="toggleTheme()" class="p-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition" title="Toggle dark mode">
+            <i class="fas fa-moon dark:hidden text-slate-600"></i>
+            <i class="fas fa-sun hidden dark:inline text-amber-400"></i>
+          </button>
+          <button onclick="loadSample()" class="hidden sm:flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition">
+            <i class="fas fa-magic text-indigo-500"></i> Sample
+          </button>
+          <button onclick="saveData()" class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition">
+            <i class="fas fa-save"></i> <span class="hidden sm:inline">Save</span>
+          </button>
+          <button onclick="downloadPortfolio()" class="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl btn-primary text-white shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition">
+            <i class="fas fa-download"></i> <span class="hidden sm:inline">Download</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8">
+
+      <!-- ========== FORM PANEL ========== -->
+      <div class="xl:col-span-5 space-y-6">
+
+        <!-- Personal Info -->
+        <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm">
+          <div class="flex items-center gap-2 mb-5">
+            <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center">
+              <i class="fas fa-user text-indigo-600 dark:text-indigo-400 text-sm"></i>
+            </div>
+            <h2 class="font-semibold text-lg">Personal Info</h2>
+          </div>
+          <div class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">Full Name *</label>
+                <input type="text" id="name" placeholder="Alex Rivera" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm" oninput="updatePreview()" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">Job Title *</label>
+                <input type="text" id="title" placeholder="Full-Stack Developer" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm" oninput="updatePreview()" />
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">Location</label>
+                <input type="text" id="location" placeholder="San Francisco, CA" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm" oninput="updatePreview()" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">Email</label>
+                <input type="email" id="email" placeholder="alex@example.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm" oninput="updatePreview()" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">Avatar URL (optional)</label>
+              <input type="url" id="avatar" placeholder="https://..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm" oninput="updatePreview()" />
+            </div>
+          </div>
+        </section>
+
+        <!-- About / Bio -->
+        <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-5">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center">
+                <i class="fas fa-pen-fancy text-violet-600 dark:text-violet-400 text-sm"></i>
+              </div>
+              <h2 class="font-semibold text-lg">About Me</h2>
+            </div>
+            <button onclick="generateBio()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 text-white hover:from-violet-600 hover:to-indigo-600 transition shadow-sm">
+              <i class="fas fa-sparkles"></i> Generate Bio
+            </button>
+          </div>
+          <textarea id="bio" rows="5" placeholder="Write a short professional bio or click Generate Bio..." class="w-full px-3.5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm resize-none" oninput="updatePreview()"></textarea>
+          <p class="text-[11px] text-slate-400 mt-2">Tip: Fill name, title & skills first, then generate a polished bio.</p>
+        </section>
+
+        <!-- Skills & Languages -->
+        <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm">
+          <div class="flex items-center gap-2 mb-5">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
+              <i class="fas fa-code text-emerald-600 dark:text-emerald-400 text-sm"></i>
+            </div>
+            <h2 class="font-semibold text-lg">Skills & Languages</h2>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">Programming Languages</label>
+            <div class="flex flex-wrap gap-2 mb-2" id="langTags"></div>
+            <div class="flex gap-2">
+              <input type="text" id="langInput" placeholder="e.g. Python, JavaScript, TypeScript..." class="flex-1 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm" onkeydown="if(event.key==='Enter'){event.preventDefault();addLanguage()}" />
+              <button onclick="addLanguage()" class="px-3 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-600 transition">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-1.5 mt-2">
+              <button onclick="quickAddLang('Python')" class="text-[11px] px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition">+ Python</button>
+              <button onclick="quickAddLang('JavaScript')" class="text-[11px] px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition">+ JavaScript</button>
+              <button onclick="quickAddLang('TypeScript')" class="text-[11px] px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition">+ TypeScript</button>
+              <button onclick="quickAddLang('Java')" class="text-[11px] px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition">+ Java</button>
+              <button onclick="quickAddLang('Go')" class="text-[11px] px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition">+ Go</button>
+              <button onclick="quickAddLang('Rust')" class="text-[11px] px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition">+ Rust</button>
+              <button onclick="quickAddLang('C++')" class="text-[11px] px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition">+ C++</button>
+              <button onclick="quickAddLang('SQL')" class="text-[11px] px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition">+ SQL</button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">Other Skills & Tools</label>
+            <div class="flex flex-wrap gap-2 mb-2" id="skillTags"></div>
+            <div class="flex gap-2">
+              <input type="text" id="skillInput" placeholder="e.g. React, Node.js, Docker, AWS..." class="flex-1 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm" onkeydown="if(event.key==='Enter'){event.preventDefault();addSkill()}" />
+              <button onclick="addSkill()" class="px-3 py-2 rounded-xl bg-indigo-500 text-white text-sm font-medium hover:bg-indigo-600 transition">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Projects -->
+        <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-5">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                <i class="fas fa-folder-open text-amber-600 dark:text-amber-400 text-sm"></i>
+              </div>
+              <h2 class="font-semibold text-lg">Projects</h2>
+            </div>
+            <button onclick="addProject()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition">
+              <i class="fas fa-plus"></i> Add Project
+            </button>
+          </div>
+          <div id="projectsContainer" class="space-y-4"></div>
+        </section>
+
+        <!-- Experience -->
+        <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-5">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center">
+                <i class="fas fa-briefcase text-rose-600 dark:text-rose-400 text-sm"></i>
+              </div>
+              <h2 class="font-semibold text-lg">Experience</h2>
+            </div>
+            <button onclick="addExperience()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-500 text-white hover:bg-rose-600 transition">
+              <i class="fas fa-plus"></i> Add
+            </button>
+          </div>
+          <div id="experienceContainer" class="space-y-4"></div>
+        </section>
+
+        <!-- Social Links -->
+        <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm">
+          <div class="flex items-center gap-2 mb-5">
+            <div class="w-8 h-8 rounded-lg bg-sky-100 dark:bg-sky-900/40 flex items-center justify-center">
+              <i class="fas fa-share-nodes text-sky-600 dark:text-sky-400 text-sm"></i>
+            </div>
+            <h2 class="font-semibold text-lg">Social Links</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="flex items-center gap-2">
+              <i class="fab fa-github w-5 text-slate-500"></i>
+              <input type="url" id="github" placeholder="GitHub URL" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm" oninput="updatePreview()" />
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fab fa-linkedin w-5 text-slate-500"></i>
+              <input type="url" id="linkedin" placeholder="LinkedIn URL" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm" oninput="updatePreview()" />
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fab fa-twitter w-5 text-slate-500"></i>
+              <input type="url" id="twitter" placeholder="X / Twitter URL" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm" oninput="updatePreview()" />
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fab fa-instagram w-5 text-slate-500"></i>
+              <input type="url" id="instagram" placeholder="Instagram URL" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm" oninput="updatePreview()" />
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fab fa-youtube w-5 text-slate-500"></i>
+              <input type="url" id="youtube" placeholder="YouTube URL" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm" oninput="updatePreview()" />
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fas fa-globe w-5 text-slate-500"></i>
+              <input type="url" id="website" placeholder="Personal Website" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm" oninput="updatePreview()" />
+            </div>
+          </div>
+        </section>
+
+        <!-- Theme -->
+        <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm">
+          <div class="flex items-center gap-2 mb-5">
+            <div class="w-8 h-8 rounded-lg bg-fuchsia-100 dark:bg-fuchsia-900/40 flex items-center justify-center">
+              <i class="fas fa-palette text-fuchsia-600 dark:text-fuchsia-400 text-sm"></i>
+            </div>
+            <h2 class="font-semibold text-lg">Theme & Style</h2>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Accent Color</label>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="setAccent('indigo')" class="w-8 h-8 rounded-full bg-indigo-500 ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 ring-indigo-500" title="Indigo"></button>
+                <button onclick="setAccent('violet')" class="w-8 h-8 rounded-full bg-violet-500" title="Violet"></button>
+                <button onclick="setAccent('emerald')" class="w-8 h-8 rounded-full bg-emerald-500" title="Emerald"></button>
+                <button onclick="setAccent('rose')" class="w-8 h-8 rounded-full bg-rose-500" title="Rose"></button>
+                <button onclick="setAccent('amber')" class="w-8 h-8 rounded-full bg-amber-500" title="Amber"></button>
+                <button onclick="setAccent('gold')" class="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600" title="Gold (Luxury)"></button>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Portfolio Style</label>
+              <select id="style" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm" onchange="updatePreview()">
+                <option value="modern">Modern & Clean</option>
+                <option value="luxury">Luxury / Elegant</option>
+                <option value="minimal">Minimal</option>
+                <option value="bold">Bold & Vibrant</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- Actions -->
+        <div class="flex flex-col sm:flex-row gap-3">
+          <button onclick="downloadPortfolio()" class="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl btn-primary text-white font-semibold shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition">
+            <i class="fas fa-file-code"></i> Download Portfolio HTML
+          </button>
+          <button onclick="resetAll()" class="px-5 py-3.5 rounded-xl border border-slate-300 dark:border-slate-700 font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- ========== LIVE PREVIEW ========== -->
+      <div class="xl:col-span-7">
+        <div class="sticky top-24">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400 flex items-center gap-2">
+              <i class="fas fa-eye"></i> Live Preview
+            </h3>
+            <div class="flex items-center gap-1 bg-slate-200 dark:bg-slate-800 rounded-lg p-1">
+              <button onclick="setPreviewMode('desktop')" id="btnDesktop" class="px-3 py-1 text-xs rounded-md bg-white dark:bg-slate-700 shadow-sm font-medium">Desktop</button>
+              <button onclick="setPreviewMode('mobile')" id="btnMobile" class="px-3 py-1 text-xs rounded-md text-slate-500">Mobile</button>
+            </div>
+          </div>
+          <div id="previewWrapper" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden transition-all duration-300">
+            <div id="previewContent" class="preview-scroll overflow-y-auto max-h-[calc(100vh-140px)]">
+              <!-- Preview rendered here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 px-5 py-3 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-medium shadow-2xl opacity-0 translate-y-4 transition-all duration-300 pointer-events-none z-50">
+    Saved successfully
+  </div>
+
+  <script>
+    // ========== STATE ==========
+    let languages = [];
+    let skills = [];
+    let projects = [];
+    let experiences = [];
+    let currentAccent = 'indigo';
+    let previewMode = 'desktop';
+
+    // ========== INIT ==========
+    document.addEventListener('DOMContentLoaded', () => {
+      // Dark mode preference
+      if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+      loadData();
+      if (projects.length === 0) addProject();
+      if (experiences.length === 0) addExperience();
+      updatePreview();
+    });
+
+    // ========== THEME ==========
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    }
+
+    function setAccent(color) {
+      currentAccent = color;
+      document.querySelectorAll('[onclick^="setAccent"]').forEach(btn => {
+        btn.classList.remove('ring-2', 'ring-offset-2', 'ring-offset-white', 'dark:ring-offset-slate-900');
+      });
+      event.currentTarget.classList.add('ring-2', 'ring-offset-2', 'ring-offset-white', 'dark:ring-offset-slate-900');
+      if (color === 'indigo') event.currentTarget.classList.add('ring-indigo-500');
+      else if (color === 'violet') event.currentTarget.classList.add('ring-violet-500');
+      else if (color === 'emerald') event.currentTarget.classList.add('ring-emerald-500');
+      else if (color === 'rose') event.currentTarget.classList.add('ring-rose-500');
+      else if (color === 'amber') event.currentTarget.classList.add('ring-amber-500');
+      else if (color === 'gold') event.currentTarget.classList.add('ring-amber-400');
+      updatePreview();
+    }
+
+    // ========== LANGUAGES & SKILLS ==========
+    function addLanguage() {
+      const input = document.getElementById('langInput');
+      const val = input.value.trim();
+      if (val && !languages.includes(val)) {
+        languages.push(val);
+        input.value = '';
+        renderLangTags();
+        updatePreview();
+      }
+    }
+    function quickAddLang(lang) {
+      if (!languages.includes(lang)) {
+        languages.push(lang);
+        renderLangTags();
+        updatePreview();
+      }
+    }
+    function removeLanguage(idx) {
+      languages.splice(idx, 1);
+      renderLangTags();
+      updatePreview();
+    }
+    function renderLangTags() {
+      const container = document.getElementById('langTags');
+      container.innerHTML = languages.map((l, i) => `
+        <span class="skill-tag inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300">
+          ${escapeHtml(l)}
+          <button onclick="removeLanguage(${i})" class="hover:text-emerald-600"><i class="fas fa-times text-[10px]"></i></button>
+        </span>
+      `).join('');
+    }
+
+    function addSkill() {
+      const input = document.getElementById('skillInput');
+      const val = input.value.trim();
+      if (val && !skills.includes(val)) {
+        skills.push(val);
+        input.value = '';
+        renderSkillTags();
+        updatePreview();
+      }
+    }
+    function removeSkill(idx) {
+      skills.splice(idx, 1);
+      renderSkillTags();
+      updatePreview();
+    }
+    function renderSkillTags() {
+      const container = document.getElementById('skillTags');
+      container.innerHTML = skills.map((s, i) => `
+        <span class="skill-tag inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300">
+          ${escapeHtml(s)}
+          <button onclick="removeSkill(${i})" class="hover:text-indigo-600"><i class="fas fa-times text-[10px]"></i></button>
+        </span>
+      `).join('');
+    }
+
+    // ========== PROJECTS ==========
+    function addProject() {
+      projects.push({ title: '', description: '', tech: '', link: '', github: '' });
+      renderProjects();
+      updatePreview();
+    }
+    function removeProject(idx) {
+      projects.splice(idx, 1);
+      renderProjects();
+      updatePreview();
+    }
+    function updateProject(idx, field, value) {
+      projects[idx][field] = value;
+      updatePreview();
+    }
+    function renderProjects() {
+      const container = document.getElementById('projectsContainer');
+      container.innerHTML = projects.map((p, i) => `
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/30 space-y-3 fade-in">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-semibold text-slate-400">Project ${i + 1}</span>
+            <button onclick="removeProject(${i})" class="text-slate-400 hover:text-rose-500 transition"><i class="fas fa-trash text-xs"></i></button>
+          </div>
+          <input type="text" placeholder="Project Title" value="${escapeHtml(p.title)}" oninput="updateProject(${i}, 'title', this.value)" class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm" />
+          <textarea placeholder="Short description..." rows="2" oninput="updateProject(${i}, 'description', this.value)" class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm resize-none">${escapeHtml(p.description)}</textarea>
+          <input type="text" placeholder="Tech stack (comma separated)" value="${escapeHtml(p.tech)}" oninput="updateProject(${i}, 'tech', this.value)" class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm" />
+          <div class="grid grid-cols-2 gap-2">
+            <input type="url" placeholder="Live URL" value="${escapeHtml(p.link)}" oninput="updateProject(${i}, 'link', this.value)" class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm" />
+            <input type="url" placeholder="GitHub URL" value="${escapeHtml(p.github)}" oninput="updateProject(${i}, 'github', this.value)" class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm" />
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ========== EXPERIENCE ==========
+    function addExperience() {
+      experiences.push({ role: '', company: '', period: '', description: '' });
+      renderExperiences();
+      updatePreview();
+    }
+    function removeExperience(idx) {
+      experiences.splice(idx, 1);
+      renderExperiences();
+      updatePreview();
+    }
+    function updateExperience(idx, field, value) {
+      experiences[idx][field] = value;
+      updatePreview();
+    }
+    function renderExperiences() {
+      const container = document.getElementById('experienceContainer');
+      container.innerHTML = experiences.map((e, i) => `
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/30 space-y-3 fade-in">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-semibold text-slate-400">Experience ${i + 1}</span>
+            <button onclick="removeExperience(${i})" class="text-slate-400 hover:text-rose-500 transition"><i class="fas fa-trash text-xs"></i></button>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" placeholder="Role / Title" value="${escapeHtml(e.role)}" oninput="updateExperience(${i}, 'role', this.value)" class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm" />
+            <input type="text" placeholder="Company" value="${escapeHtml(e.company)}" oninput="updateExperience(${i}, 'company', this.value)" class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm" />
+          </div>
+          <input type="text" placeholder="Period (e.g. 2022 – Present)" value="${escapeHtml(e.period)}" oninput="updateExperience(${i}, 'period', this.value)" class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm" />
+          <textarea placeholder="Key achievements..." rows="2" oninput="updateExperience(${i}, 'description', this.value)" class="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm resize-none">${escapeHtml(e.description)}</textarea>
+        </div>
+      `).join('');
+    }
+
+    // ========== GENERATE BIO ==========
+    function generateBio() {
+      const name = document.getElementById('name').value.trim() || 'a passionate professional';
+      const title = document.getElementById('title').value.trim() || 'developer';
+      const location = document.getElementById('location').value.trim();
+      const langs = languages.length ? languages.slice(0, 4).join(', ') : 'modern technologies';
+      const skillList = skills.length ? skills.slice(0, 3).join(', ') : 'building impactful solutions';
+
+      const templates = [
+        `I'm ${name}, a ${title}${location ? ` based in ${location}` : ''}. I specialize in ${langs} and love crafting elegant, high-performance applications. With a strong focus on ${skillList}, I turn complex problems into clean, scalable solutions that users enjoy.`,
+        `Hi, I'm ${name} — a ${title} who thrives at the intersection of design and engineering. My toolkit centers around ${langs}, and I enjoy building products that are both beautiful and reliable. Currently focused on ${skillList}.`,
+        `${name} is a ${title}${location ? ` from ${location}` : ''} with a passion for clean code and thoughtful user experiences. Proficient in ${langs}, I bring ideas to life using ${skillList} and modern best practices.`,
+        `As a ${title}, I help teams ship exceptional software. My expertise spans ${langs}, and I particularly enjoy working with ${skillList}. I believe great products come from clarity, craftsmanship, and continuous learning.`
+      ];
+
+      const bio = templates[Math.floor(Math.random() * templates.length)];
+      document.getElementById('bio').value = bio;
+      updatePreview();
+      showToast('Bio generated successfully');
+    }
+
+    // ========== PREVIEW ==========
+    function setPreviewMode(mode) {
+      previewMode = mode;
+      const wrapper = document.getElementById('previewWrapper');
+      const btnD = document.getElementById('btnDesktop');
+      const btnM = document.getElementById('btnMobile');
+      if (mode === 'mobile') {
+        wrapper.style.maxWidth = '390px';
+        wrapper.style.margin = '0 auto';
+        btnM.classList.add('bg-white', 'dark:bg-slate-700', 'shadow-sm', 'font-medium');
+        btnM.classList.remove('text-slate-500');
+        btnD.classList.remove('bg-white', 'dark:bg-slate-700', 'shadow-sm', 'font-medium');
+        btnD.classList.add('text-slate-500');
+      } else {
+        wrapper.style.maxWidth = '';
+        wrapper.style.margin = '';
+        btnD.classList.add('bg-white', 'dark:bg-slate-700', 'shadow-sm', 'font-medium');
+        btnD.classList.remove('text-slate-500');
+        btnM.classList.remove('bg-white', 'dark:bg-slate-700', 'shadow-sm', 'font-medium');
+        btnM.classList.add('text-slate-500');
+      }
+    }
+
+    function getAccentClasses() {
+      const map = {
+        indigo: { bg: 'bg-indigo-500', text: 'text-indigo-500', light: 'bg-indigo-50 dark:bg-indigo-900/30', border: 'border-indigo-200 dark:border-indigo-800', gradient: 'from-indigo-500 to-violet-600' },
+        violet: { bg: 'bg-violet-500', text: 'text-violet-500', light: 'bg-violet-50 dark:bg-violet-900/30', border: 'border-violet-200 dark:border-violet-800', gradient: 'from-violet-500 to-purple-600' },
+        emerald: { bg: 'bg-emerald-500', text: 'text-emerald-500', light: 'bg-emerald-50 dark:bg-emerald-900/30', border: 'border-emerald-200 dark:border-emerald-800', gradient: 'from-emerald-500 to-teal-600' },
+        rose: { bg: 'bg-rose-500', text: 'text-rose-500', light: 'bg-rose-50 dark:bg-rose-900/30', border: 'border-rose-200 dark:border-rose-800', gradient: 'from-rose-500 to-pink-600' },
+        amber: { bg: 'bg-amber-500', text: 'text-amber-500', light: 'bg-amber-50 dark:bg-amber-900/30', border: 'border-amber-200 dark:border-amber-800', gradient: 'from-amber-500 to-orange-600' },
+        gold: { bg: 'bg-amber-500', text: 'text-amber-600', light: 'bg-amber-50 dark:bg-amber-900/30', border: 'border-amber-200 dark:border-amber-800', gradient: 'from-yellow-500 to-amber-600' }
+      };
+      return map[currentAccent] || map.indigo;
+    }
+
+    function updatePreview() {
+      const name = document.getElementById('name').value || 'Your Name';
+      const title = document.getElementById('title').value || 'Your Title';
+      const location = document.getElementById('location').value;
+      const email = document.getElementById('email').value;
+      const avatar = document.getElementById('avatar').value;
+      const bio = document.getElementById('bio').value || 'Your professional bio will appear here. Click "Generate Bio" or write your own.';
+      const style = document.getElementById('style').value;
+      const github = document.getElementById('github').value;
+      const linkedin = document.getElementById('linkedin').value;
+      const twitter = document.getElementById('twitter').value;
+      const instagram = document.getElementById('instagram').value;
+      const youtube = document.getElementById('youtube').value;
+      const website = document.getElementById('website').value;
+
+      const accent = getAccentClasses();
+      const isLuxury = style === 'luxury';
+
+      let html = `
+        <div class="${isLuxury ? 'bg-slate-950 text-slate-100' : 'bg-white dark:bg-slate-900'} min-h-full">
+          <!-- Hero -->
+          <section class="relative overflow-hidden ${isLuxury ? 'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950' : ''}">
+            ${isLuxury ? '<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-900/20 via-transparent to-transparent"></div>' : ''}
+            <div class="relative px-6 sm:px-10 py-12 sm:py-16">
+              <div class="flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
+                <div class="relative">
+                  ${avatar 
+                    ? `<img src="${escapeHtml(avatar)}" alt="${escapeHtml(name)}" class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl object-cover shadow-2xl ring-4 ring-white/10" onerror="this.style.display='none'" />`
+                    : `<div class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br ${accent.gradient} flex items-center justify-center text-4xl font-bold text-white shadow-2xl">${name.charAt(0).toUpperCase()}</div>`
+                  }
+                  ${isLuxury ? '<div class="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center shadow-lg"><i class="fas fa-check text-slate-900 text-xs"></i></div>' : ''}
+                </div>
+                <div class="text-center sm:text-left flex-1">
+                  <h1 class="${isLuxury ? 'font-display text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'} font-bold tracking-tight ${isLuxury ? 'text-white' : ''}">${escapeHtml(name)}</h1>
+                  <p class="mt-1 text-lg ${accent.text} font-medium">${escapeHtml(title)}</p>
+                  <div class="mt-3 flex flex-wrap items-center justify-center sm:justify-start gap-3 text-sm text-slate-500 dark:text-slate-400">
+                    ${location ? `<span class="flex items-center gap-1.5"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(location)}</span>` : ''}
+                    ${email ? `<a href="mailto:${escapeHtml(email)}" class="flex items-center gap-1.5 hover:${accent.text} transition"><i class="fas fa-envelope"></i> ${escapeHtml(email)}</a>` : ''}
+                  </div>
+                  <div class="mt-4 flex flex-wrap justify-center sm:justify-start gap-2">
+                    ${github ? `<a href="${escapeHtml(github)}" target="_blank" class="w-9 h-9 rounded-xl ${isLuxury ? 'bg-white/10 hover:bg-white/20' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'} flex items-center justify-center transition"><i class="fab fa-github"></i></a>` : ''}
+                    ${linkedin ? `<a href="${escapeHtml(linkedin)}" target="_blank" class="w-9 h-9 rounded-xl ${isLuxury ? 'bg-white/10 hover:bg-white/20' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'} flex items-center justify-center transition"><i class="fab fa-linkedin-in"></i></a>` : ''}
+                    ${twitter ? `<a href="${escapeHtml(twitter)}" target="_blank" class="w-9 h-9 rounded-xl ${isLuxury ? 'bg-white/10 hover:bg-white/20' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'} flex items-center justify-center transition"><i class="fab fa-x-twitter"></i></a>` : ''}
+                    ${instagram ? `<a href="${escapeHtml(instagram)}" target="_blank" class="w-9 h-9 rounded-xl ${isLuxury ? 'bg-white/10 hover:bg-white/20' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'} flex items-center justify-center transition"><i class="fab fa-instagram"></i></a>` : ''}
+                    ${youtube ? `<a href="${escapeHtml(youtube)}" target="_blank" class="w-9 h-9 rounded-xl ${isLuxury ? 'bg-white/10 hover:bg-white/20' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'} flex items-center justify-center transition"><i class="fab fa-youtube"></i></a>` : ''}
+                    ${website ? `<a href="${escapeHtml(website)}" target="_blank" class="w-9 h-9 rounded-xl ${isLuxury ? 'bg-white/10 hover:bg-white/20' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'} flex items-center justify-center transition"><i class="fas fa-globe"></i></a>` : ''}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="px-6 sm:px-10 py-8 space-y-10">
+            <!-- About -->
+            <section>
+              <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                <span class="w-8 h-px ${accent.bg}"></span> About
+              </h2>
+              <p class="text-slate-600 dark:text-slate-300 leading-relaxed ${isLuxury ? 'text-slate-300' : ''}">${escapeHtml(bio)}</p>
+            </section>
+
+            <!-- Languages -->
+            ${languages.length ? `
+            <section>
+              <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
+                <span class="w-8 h-px ${accent.bg}"></span> Languages
+              </h2>
+              <div class="flex flex-wrap gap-2">
+                ${languages.map(l => `
+                  <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium ${isLuxury ? 'bg-white/10 text-amber-200 border border-white/10' : accent.light + ' ' + accent.text}">
+                    <i class="fas fa-code text-xs opacity-70"></i> ${escapeHtml(l)}
+                  </span>
+                `).join('')}
+              </div>
+            </section>` : ''}
+
+            <!-- Skills -->
+            ${skills.length ? `
+            <section>
+              <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
+                <span class="w-8 h-px ${accent.bg}"></span> Skills & Tools
+              </h2>
+              <div class="flex flex-wrap gap-2">
+                ${skills.map(s => `
+                  <span class="px-3 py-1.5 rounded-lg text-xs font-medium ${isLuxury ? 'bg-white/5 text-slate-300 border border-white/10' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}">
+                    ${escapeHtml(s)}
+                  </span>
+                `).join('')}
+              </div>
+            </section>` : ''}
+
+            <!-- Experience -->
+            ${experiences.some(e => e.role || e.company) ? `
+            <section>
+              <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-5 flex items-center gap-2">
+                <span class="w-8 h-px ${accent.bg}"></span> Experience
+              </h2>
+              <div class="space-y-6">
+                ${experiences.filter(e => e.role || e.company).map(e => `
+                  <div class="relative pl-6 border-l-2 ${isLuxury ? 'border-amber-500/40' : 'border-slate-200 dark:border-slate-700'}">
+                    <div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full ${accent.bg} ring-4 ${isLuxury ? 'ring-slate-950' : 'ring-white dark:ring-slate-900'}"></div>
+                    <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+                      <h3 class="font-semibold ${isLuxury ? 'text-white' : ''}">${escapeHtml(e.role) || 'Role'}</h3>
+                      <span class="text-xs text-slate-400">${escapeHtml(e.period)}</span>
+                    </div>
+                    <p class="text-sm ${accent.text} font-medium mt-0.5">${escapeHtml(e.company)}</p>
+                    ${e.description ? `<p class="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">${escapeHtml(e.description)}</p>` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            </section>` : ''}
+
+            <!-- Projects -->
+            ${projects.some(p => p.title) ? `
+            <section>
+              <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-5 flex items-center gap-2">
+                <span class="w-8 h-px ${accent.bg}"></span> Selected Projects
+              </h2>
+              <div class="grid gap-4">
+                ${projects.filter(p => p.title).map(p => `
+                  <div class="project-card p-5 rounded-2xl border ${isLuxury ? 'border-white/10 bg-white/5 hover:bg-white/10' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50'} transition">
+                    <div class="flex items-start justify-between gap-3">
+                      <h3 class="font-semibold text-lg ${isLuxury ? 'text-white' : ''}">${escapeHtml(p.title)}</h3>
+                      <div class="flex gap-2 shrink-0">
+                        ${p.link ? `<a href="${escapeHtml(p.link)}" target="_blank" class="w-8 h-8 rounded-lg ${isLuxury ? 'bg-white/10' : 'bg-white dark:bg-slate-700'} flex items-center justify-center text-sm hover:${accent.text} transition"><i class="fas fa-external-link-alt"></i></a>` : ''}
+                        ${p.github ? `<a href="${escapeHtml(p.github)}" target="_blank" class="w-8 h-8 rounded-lg ${isLuxury ? 'bg-white/10' : 'bg-white dark:bg-slate-700'} flex items-center justify-center text-sm hover:${accent.text} transition"><i class="fab fa-github"></i></a>` : ''}
+                      </div>
+                    </div>
+                    ${p.description ? `<p class="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">${escapeHtml(p.description)}</p>` : ''}
+                    ${p.tech ? `
+                      <div class="mt-3 flex flex-wrap gap-1.5">
+                        ${p.tech.split(',').map(t => t.trim()).filter(Boolean).map(t => `
+                          <span class="px-2 py-0.5 rounded text-[11px] font-medium ${isLuxury ? 'bg-amber-500/20 text-amber-200' : accent.light + ' ' + accent.text}">${escapeHtml(t)}</span>
+                        `).join('')}
+                      </div>
+                    ` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            </section>` : ''}
+
+            <!-- Footer -->
+            <footer class="pt-8 pb-4 border-t ${isLuxury ? 'border-white/10' : 'border-slate-200 dark:border-slate-800'} text-center">
+              <p class="text-xs text-slate-400">Built with LuxeFolio · ${new Date().getFullYear()}</p>
+            </footer>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('previewContent').innerHTML = html;
+    }
+
+    // ========== SAVE / LOAD ==========
+    function getFormData() {
+      return {
+        name: document.getElementById('name').value,
+        title: document.getElementById('title').value,
+        location: document.getElementById('location').value,
+        email: document.getElementById('email').value,
+        avatar: document.getElementById('avatar').value,
+        bio: document.getElementById('bio').value,
+        languages,
+        skills,
+        projects,
+        experiences,
+        github: document.getElementById('github').value,
+        linkedin: document.getElementById('linkedin').value,
+        twitter: document.getElementById('twitter').value,
+        instagram: document.getElementById('instagram').value,
+        youtube: document.getElementById('youtube').value,
+        website: document.getElementById('website').value,
+        style: document.getElementById('style').value,
+        accent: currentAccent
+      };
+    }
+
+    function saveData() {
+      localStorage.setItem('luxefolio_data', JSON.stringify(getFormData()));
+      showToast('Portfolio data saved');
+    }
+
+    function loadData() {
+      const raw = localStorage.getItem('luxefolio_data');
+      if (!raw) return;
+      try {
+        const data = JSON.parse(raw);
+        document.getElementById('name').value = data.name || '';
+        document.getElementById('title').value = data.title || '';
+        document.getElementById('location').value = data.location || '';
+        document.getElementById('email').value = data.email || '';
+        document.getElementById('avatar').value = data.avatar || '';
+        document.getElementById('bio').value = data.bio || '';
+        document.getElementById('github').value = data.github || '';
+        document.getElementById('linkedin').value = data.linkedin || '';
+        document.getElementById('twitter').value = data.twitter || '';
+        document.getElementById('instagram').value = data.instagram || '';
+        document.getElementById('youtube').value = data.youtube || '';
+        document.getElementById('website').value = data.website || '';
+        document.getElementById('style').value = data.style || 'modern';
+        languages = data.languages || [];
+        skills = data.skills || [];
+        projects = data.projects || [];
+        experiences = data.experiences || [];
+        currentAccent = data.accent || 'indigo';
+        renderLangTags();
+        renderSkillTags();
+        renderProjects();
+        renderExperiences();
+      } catch (e) {}
+    }
+
+    function loadSample() {
+      document.getElementById('name').value = 'Omolade Rotimi';
+      document.getElementById('title').value = 'Software Engineer & Python Developer';
+      document.getElementById('location').value = 'Ibadan, Nigeria';
+      document.getElementById('email').value = 'omolade@example.com';
+      document.getElementById('bio').value = '';
+      languages = ['Python', 'JavaScript', 'TypeScript', 'SQL'];
+      skills = ['Django', 'React', 'Node.js', 'PostgreSQL', 'Docker', 'AWS', 'Git', 'REST APIs'];
+      projects = [
+        { title: 'Smart Inventory System', description: 'A full-stack inventory management platform with real-time analytics and barcode scanning support.', tech: 'Python, Django, React, PostgreSQL', link: '', github: '' },
+        { title: 'AI Text Summarizer', description: 'Web app that generates concise summaries from long articles using NLP techniques.', tech: 'Python, FastAPI, Hugging Face, Next.js', link: '', github: '' },
+        { title: 'Portfolio Generator', description: 'Client-side tool that helps developers create beautiful portfolios in minutes.', tech: 'HTML, Tailwind, Vanilla JS', link: '', github: '' }
+      ];
+      experiences = [
+        { role: 'Software Engineer', company: 'TechNova Solutions', period: '2023 – Present', description: 'Building scalable backend services and modern web applications using Python and React.' },
+        { role: 'Junior Developer', company: 'CodeCraft Labs', period: '2021 – 2023', description: 'Developed REST APIs and contributed to frontend features for client projects.' }
+      ];
+      document.getElementById('github').value = 'https://github.com';
+      document.getElementById('linkedin').value = 'https://linkedin.com';
+      document.getElementById('style').value = 'luxury';
+      currentAccent = 'gold';
+      renderLangTags();
+      renderSkillTags();
+      renderProjects();
+      renderExperiences();
+      generateBio();
+      updatePreview();
+      showToast('Sample data loaded');
+    }
+
+    function resetAll() {
+      if (!confirm('Reset all data? This cannot be undone.')) return;
+      localStorage.removeItem('luxefolio_data');
+      document.getElementById('name').value = '';
+      document.getElementById('title').value = '';
+      document.getElementById('location').value = '';
+      document.getElementById('email').value = '';
+      document.getElementById('avatar').value = '';
+      document.getElementById('bio').value = '';
+      document.getElementById('github').value = '';
+      document.getElementById('linkedin').value = '';
+      document.getElementById('twitter').value = '';
+      document.getElementById('instagram').value = '';
+      document.getElementById('youtube').value = '';
+      document.getElementById('website').value = '';
+      document.getElementById('style').value = 'modern';
+      languages = [];
+      skills = [];
+      projects = [];
+      experiences = [];
+      currentAccent = 'indigo';
+      renderLangTags();
+      renderSkillTags();
+      addProject();
+      addExperience();
+      updatePreview();
+      showToast('Reset complete');
+    }
+
+    // ========== DOWNLOAD ==========
+    function downloadPortfolio() {
+      const data = getFormData();
+      const name = data.name || 'Portfolio';
+      const accent = getAccentClasses();
+      const isLuxury = data.style === 'luxury';
+
+      // Build a complete standalone HTML
+      const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${escapeHtml(name)} — Portfolio</title>
+  <script src="https://cdn.tailwindcss.com"><\/script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Playfair Display', 'serif'] } } }
+    }
+  <\/script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-display { font-family: 'Playfair Display', serif; }
+    .project-card { transition: all 0.25s ease; }
+    .project-card:hover { transform: translateY(-4px); }
+  </style>
+</head>
+<body class="${isLuxury ? 'bg-slate-950 text-slate-100' : 'bg-white text-slate-800'}">
+  ${document.getElementById('previewContent').innerHTML}
+  <script>
+    // Optional: respect system dark mode for non-luxury
+    if (!${isLuxury} && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark');
+      document.body.classList.add('dark:bg-slate-900', 'dark:text-slate-100');
+    }
+  <\/script>
+</body>
+</html>`;
+
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${(name || 'portfolio').toLowerCase().replace(/\s+/g, '-')}-portfolio.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Portfolio downloaded!');
+    }
+
+    // ========== UTILS ==========
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.remove('opacity-0', 'translate-y-4');
+      t.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        t.classList.add('opacity-0', 'translate-y-4');
+        t.classList.remove('opacity-100', 'translate-y-0');
+      }, 2500);
+    }
+  </script>
+</body>
+</html>
